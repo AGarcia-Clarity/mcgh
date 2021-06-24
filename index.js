@@ -4,6 +4,10 @@ const axios = require('axios')
 const { router, get } = require('microrouter');
 const redirect = require('micro-redirect');
 const uid = require('uid-promise');
+const cors = require('micro-cors')({ 
+  allowMethods: ['GET'],
+  origin: 'http://localhost:8000 http://tud.vfs.va.gov'
+})
 
 const githubUrl = process.env.GH_HOST || 'github.com'
 
@@ -66,6 +70,6 @@ const callback = async (req, res) => {
 }
 
 module.exports = router(
-  get('/login', login),
+  get('/login', cors(login)),
   get('/callback', callback)
 );
