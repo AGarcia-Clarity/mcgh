@@ -4,18 +4,26 @@ const axios = require('axios')
 const { router, get } = require('microrouter');
 const redirect = require('micro-redirect');
 const uid = require('uid-promise');
+const { send } = require('micro');
+const origin = process.env.NODE_ENV === 'development'
+  ? 'http://localhost:8000'
+  : 'http://tud.vfs.va.gov'
 const cors = require('micro-cors')({ 
   allowMethods: ['GET'],
-  origin: 'http://localhost:8000 http://tud.vfs.va.gov'
+  origin
 })
 
-const githubUrl = process.env.GH_HOST || 'github.com'
+const githubUrl = 'github.com'
 
 const states = [];
 
 const redirectWithQueryString = (res, data) => {
   const location = `${process.env.REDIRECT_URL}?${querystring.stringify(data)}`
   redirect(res, 302, location)
+}
+
+const status = async (req, res) => {
+  send(res, 200, { origin })
 }
 
 const login = async (req, res) => {
@@ -70,6 +78,7 @@ const callback = async (req, res) => {
 }
 
 module.exports = router(
+  get('/status', status),
   get('/login', cors(login)),
   get('/callback', callback)
 );
