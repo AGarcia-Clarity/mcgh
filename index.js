@@ -22,11 +22,15 @@ const redirectWithQueryString = (res, data) => {
   redirect(res, 302, location)
 }
 
-const status = async (req, res) => {
-  send(res, 200, { origin })
+const status = async (_, res) => {
+  send(res, 200, { status: 'ok'})
 }
 
 const login = async (req, res) => {
+  if(req.headers.referer !== origin) {
+    send(res, 401, { error: 'Unauthorized' });
+    return;
+  }
   const state = await uid(20);
   states.push(state);
   const { scope, allow_signup } = req.query;
@@ -40,6 +44,10 @@ const login = async (req, res) => {
 };
 
 const callback = async (req, res) => {
+  if(req.headers.referer !== origin) {
+    send(res, 401, { error: 'Unauthorized' });
+    return;
+  }
   res.setHeader('Content-Type', 'text/html')
   const { code, state } = req.query
 
